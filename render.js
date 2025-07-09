@@ -1,22 +1,26 @@
 import express from "express";
 import puppeteer from "puppeteer";
 import bodyParser from "body-parser";
+import { fileURLToPath } from "url";
+import path from "path";
 
 const app = express();
 const PORT = process.env.PORT || 10000;
 
-// Accept HTML content in plain text form
 app.use(bodyParser.text({ type: "text/html", limit: "5mb" }));
 
-// Main render endpoint
 app.post("/render", async (req, res) => {
   const html = req.body;
   if (!html) return res.status(400).send("Missing HTML body");
 
   try {
+    const executablePath = path.resolve(
+      "./chromium/chrome-linux/chrome" // ✅ Force Puppeteer to launch our version
+    );
+
     const browser = await puppeteer.launch({
       headless: "new",
-      executablePath: puppeteer.executablePath(), // ✅ This fixes the "Chrome not found" error
+      executablePath,
       args: ["--no-sandbox", "--disable-setuid-sandbox"]
     });
 
@@ -43,7 +47,5 @@ app.post("/render", async (req, res) => {
   }
 });
 
-// Health check
 app.get("/", (req, res) => res.send("Puppeteer PDF server is up!"));
-
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
