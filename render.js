@@ -1,7 +1,6 @@
 import express from "express";
 import puppeteer from "puppeteer";
 import bodyParser from "body-parser";
-import path from "path";
 
 const app = express();
 const PORT = process.env.PORT || 10000;
@@ -13,13 +12,9 @@ app.post("/render", async (req, res) => {
   if (!html) return res.status(400).send("Missing HTML body");
 
   try {
-    const executablePath = path.resolve(
-      "./chromium/linux-138.0.7204.94/chrome-linux64/chrome"
-    );
-
     const browser = await puppeteer.launch({
       headless: "new",
-      executablePath,
+      executablePath: puppeteer.executablePath(), // ✅ built-in method
       args: ["--no-sandbox", "--disable-setuid-sandbox"]
     });
 
