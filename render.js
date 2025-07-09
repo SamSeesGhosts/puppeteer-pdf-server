@@ -5,22 +5,19 @@ import bodyParser from "body-parser";
 const app = express();
 const PORT = process.env.PORT || 10000;
 
+// Accept HTML content in plain text form
 app.use(bodyParser.text({ type: "text/html", limit: "5mb" }));
 
+// Main render endpoint
 app.post("/render", async (req, res) => {
   const html = req.body;
   if (!html) return res.status(400).send("Missing HTML body");
 
   try {
-    const browserFetcher = puppeteer.createBrowserFetcher({
-      path: "./chromium"
-    });
-    const revisionInfo = await browserFetcher.download(puppeteer.browser.version());
-
     const browser = await puppeteer.launch({
       headless: "new",
-      executablePath: revisionInfo.executablePath,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      executablePath: puppeteer.executablePath(), // ✅ This fixes the "Chrome not found" error
+      args: ["--no-sandbox", "--disable-setuid-sandbox"]
     });
 
     const page = await browser.newPage();
@@ -29,14 +26,14 @@ app.post("/render", async (req, res) => {
     const pdfBuffer = await page.pdf({
       format: "A4",
       printBackground: true,
-      margin: { top: "30px", bottom: "30px", left: "30px", right: "30px" },
+      margin: { top: "30px", bottom: "30px", left: "30px", right: "30px" }
     });
 
     await browser.close();
 
     res.set({
       "Content-Type": "application/pdf",
-      "Content-Disposition": "attachment; filename=output.pdf",
+      "Content-Disposition": "attachment; filename=output.pdf"
     });
 
     res.send(pdfBuffer);
@@ -46,6 +43,7 @@ app.post("/render", async (req, res) => {
   }
 });
 
+// Health check
 app.get("/", (req, res) => res.send("Puppeteer PDF server is up!"));
 
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
