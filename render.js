@@ -1,6 +1,7 @@
 import express from "express";
-import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-core";
 import bodyParser from "body-parser";
+import path from "path";
 
 const app = express();
 const PORT = process.env.PORT || 10000;
@@ -12,9 +13,11 @@ app.post("/render", async (req, res) => {
   if (!html) return res.status(400).send("Missing HTML body");
 
   try {
+    const executablePath = path.resolve("./chrome-linux64/chrome"); // This is where you'll upload Chromium
+
     const browser = await puppeteer.launch({
       headless: "new",
-      executablePath: puppeteer.executablePath(), // ✅ built-in method
+      executablePath,
       args: ["--no-sandbox", "--disable-setuid-sandbox"]
     });
 
