@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "node render.js",
-    "postinstall": "puppeteer install"
+    "postinstall": "PUPPETEER_CACHE_DIR=./chromium puppeteer install"
   },
   "dependencies": {
     "puppeteer": "^24.12.1",
