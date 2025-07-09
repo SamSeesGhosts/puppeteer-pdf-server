@@ -1,7 +1,6 @@
 import express from "express";
 import puppeteer from "puppeteer";
 import bodyParser from "body-parser";
-import { fileURLToPath } from "url";
 import path from "path";
 
 const app = express();
@@ -15,7 +14,7 @@ app.post("/render", async (req, res) => {
 
   try {
     const executablePath = path.resolve(
-      "./chromium/chrome-linux/chrome" // ✅ Force Puppeteer to launch our version
+      "./chromium/linux-138.0.7204.94/chrome-linux64/chrome"
     );
 
     const browser = await puppeteer.launch({
