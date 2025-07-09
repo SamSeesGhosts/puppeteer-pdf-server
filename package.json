@@ -4,7 +4,8 @@
   "main": "render.js",
   "type": "module",
   "scripts": {
-    "start": "node render.js"
+    "start": "node render.js",
+    "postinstall": "puppeteer install"
   },
   "dependencies": {
     "puppeteer": "^24.12.1",
