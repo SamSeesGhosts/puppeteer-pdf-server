@@ -9,7 +9,6 @@ app.use(bodyParser.text({ type: "text/html", limit: "5mb" }));
 
 app.post("/render", async (req, res) => {
   const html = req.body;
-
   if (!html) return res.status(400).send("Missing HTML body");
 
   const browser = await puppeteer.launch({
