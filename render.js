@@ -1,40 +1,46 @@
 import express from "express";
 import puppeteer from "puppeteer";
-import bodyParser from "body-parser";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(bodyParser.text({ type: "text/html", limit: "5mb" }));
+app.use(express.text({ type: ["text/html", "application/json"] }));
 
 app.post("/render", async (req, res) => {
-  const html = req.body;
-  if (!html) return res.status(400).send("Missing HTML body");
+  const html = typeof req.body === "string" ? req.body : req.body.html;
 
-  const browser = await puppeteer.launch({
-    headless: "new",
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
-  });
+  if (!html) {
+    return res.status(400).send("Missing HTML content.");
+  }
 
-  const page = await browser.newPage();
-  await page.setContent(html, { waitUntil: "networkidle0" });
+  try {
+    const browser = await puppeteer.launch({
+      headless: "new",
+      args: ["--no-sandbox", "--disable-setuid-sandbox"]
+    });
 
-  const pdfBuffer = await page.pdf({
-    format: "A4",
-    printBackground: true,
-    margin: { top: "30px", bottom: "30px", left: "30px", right: "30px" },
-  });
+    const page = await browser.newPage();
+    await page.setContent(html, { waitUntil: "networkidle0" });
 
-  await browser.close();
+    const pdfBuffer = await page.pdf({
+      format: "A4",
+      printBackground: true,
+      margin: { top: "30px", bottom: "30px", left: "30px", right: "30px" }
+    });
 
-  res.set({
-    "Content-Type": "application/pdf",
-    "Content-Disposition": "attachment; filename=output.pdf",
-  });
+    await browser.close();
 
-  res.send(pdfBuffer);
+    res.set({
+      "Content-Type": "application/pdf",
+      "Content-Disposition": "attachment; filename=output.pdf"
+    });
+
+    res.send(pdfBuffer);
+  } catch (err) {
+    console.error("❌ Puppeteer error:", err);
+    res.status(500).send("Puppeteer rendering failed.");
+  }
 });
 
 app.get("/", (req, res) => res.send("Puppeteer PDF server is up!"));
-
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
