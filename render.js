@@ -7,7 +7,6 @@ const port = process.env.PORT || 3000;
 
 app.use(bodyParser.text({ limit: '10mb' }));
 
-// Test route for checking Chrome path
 app.get('/', async (req, res) => {
   let executablePath = await chromium.executablePath;
 
@@ -19,7 +18,6 @@ app.get('/', async (req, res) => {
   res.send(`✅ Puppeteer Render Server is running<br>🧠 Chrome path: ${executablePath}`);
 });
 
-// PDF rendering endpoint
 app.post('/render', async (req, res) => {
   try {
     const html = req.body;
@@ -46,7 +44,7 @@ app.post('/render', async (req, res) => {
 
     const pdfBuffer = await page.pdf({
       format: 'A4',
-      printBackground: true,
+      printBackground: true
     });
 
     await browser.close();
