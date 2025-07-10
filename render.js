@@ -1,23 +1,37 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const chromium = require('chrome-aws-lambda');
+
 const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(bodyParser.text({ limit: '10mb' }));
 
+// Test route for checking Chrome path
 app.get('/', async (req, res) => {
-  const chromePath = await chromium.executablePath;
-  res.send(`✅ Puppeteer Render Server is running<br>🧠 Chrome path: ${chromePath}`);
+  let executablePath = await chromium.executablePath;
+
+  if (!executablePath) {
+    console.warn("⚠️ No Chrome path found — trying fallback path...");
+    executablePath = '/opt/render/project/node_modules/chrome-aws-lambda/bin/chromium';
+  }
+
+  res.send(`✅ Puppeteer Render Server is running<br>🧠 Chrome path: ${executablePath}`);
 });
 
+// PDF rendering endpoint
 app.post('/render', async (req, res) => {
   try {
     const html = req.body;
-
     console.log("📥 Received HTML:", html.slice(0, 150));
 
-    const executablePath = await chromium.executablePath;
+    let executablePath = await chromium.executablePath;
+
+    if (!executablePath) {
+      console.warn("⚠️ No Chrome path found — trying fallback path...");
+      executablePath = '/opt/render/project/node_modules/chrome-aws-lambda/bin/chromium';
+    }
+
     console.log("🧠 Using Chromium at:", executablePath);
 
     const browser = await chromium.puppeteer.launch({
@@ -32,7 +46,7 @@ app.post('/render', async (req, res) => {
 
     const pdfBuffer = await page.pdf({
       format: 'A4',
-      printBackground: true
+      printBackground: true,
     });
 
     await browser.close();
