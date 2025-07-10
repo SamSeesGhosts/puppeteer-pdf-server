@@ -5,15 +5,12 @@ const puppeteer = require('puppeteer');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Accept large HTML bodies
 app.use(bodyParser.text({ limit: '10mb' }));
 
-// Basic health check route
 app.get('/', (req, res) => {
   res.send('✅ Puppeteer Render Server is running');
 });
 
-// PDF rendering route
 app.post('/render', async (req, res) => {
   try {
     const html = req.body;
