@@ -17,8 +17,8 @@ app.post('/render', async (req, res) => {
     console.log("📥 Received HTML:", html.slice(0, 150));
 
     const browser = await puppeteer.launch({
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
       headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
 
     const page = await browser.newPage();
@@ -26,7 +26,7 @@ app.post('/render', async (req, res) => {
 
     const pdfBuffer = await page.pdf({
       format: 'A4',
-      printBackground: true
+      printBackground: true,
     });
 
     await browser.close();
