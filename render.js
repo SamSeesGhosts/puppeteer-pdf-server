@@ -1,45 +1,24 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const chromium = require('chrome-aws-lambda');
-const puppeteer = require('puppeteer'); // ✅ Use full puppeteer instead of puppeteer-core
+const puppeteer = require('puppeteer');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(bodyParser.text({ limit: '10mb' }));
 
-// Health check route
 app.get('/', async (req, res) => {
-  let executablePath = await chromium.executablePath;
-
-  if (!executablePath) {
-    console.warn("⚠️ No Chrome path found — trying fallback path...");
-    executablePath = '/opt/render/project/node_modules/chrome-aws-lambda/bin/chromium';
-  }
-
-  res.send(`✅ Puppeteer Render Server is running<br>🧠 Chrome path: ${executablePath}`);
+  res.send(`✅ Puppeteer Render Server is running`);
 });
 
-// Render PDF route
 app.post('/render', async (req, res) => {
   try {
     const html = req.body;
     console.log("📥 Received HTML:", html.slice(0, 150));
 
-    let executablePath = await chromium.executablePath;
-
-    if (!executablePath) {
-      console.warn("⚠️ No Chrome path found — trying fallback path...");
-      executablePath = '/opt/render/project/node_modules/chrome-aws-lambda/bin/chromium';
-    }
-
-    console.log("🧠 Using Chromium at:", executablePath);
-
     const browser = await puppeteer.launch({
-      args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
-      executablePath,
-      headless: chromium.headless,
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
 
     const page = await browser.newPage();
