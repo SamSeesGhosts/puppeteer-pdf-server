@@ -1,48 +1,44 @@
-import express from "express";
-import puppeteer from "puppeteer-core";
-import bodyParser from "body-parser";
-import path from "path";
-
+const express = require('express');
+const bodyParser = require('body-parser');
+const chromium = require('chrome-aws-lambda');
 const app = express();
-const PORT = process.env.PORT || 10000;
+const port = process.env.PORT || 3000;
 
-app.use(bodyParser.text({ type: "text/html", limit: "5mb" }));
+app.use(bodyParser.text({ limit: '10mb' }));
 
-app.post("/render", async (req, res) => {
-  const html = req.body;
-  if (!html) return res.status(400).send("Missing HTML body");
+app.get('/', (req, res) => {
+  res.send('✅ Puppeteer Render Server is running');
+});
 
+app.post('/render', async (req, res) => {
   try {
-    const executablePath = path.resolve("./chrome-linux64/chrome"); // This is where you'll upload Chromium
+    const html = req.body;
 
-    const browser = await puppeteer.launch({
-      headless: "new",
-      executablePath,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"]
+    const browser = await chromium.puppeteer.launch({
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: await chromium.executablePath,
+      headless: chromium.headless,
     });
 
     const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: "networkidle0" });
+    await page.setContent(html, { waitUntil: 'networkidle0' });
 
     const pdfBuffer = await page.pdf({
-      format: "A4",
-      printBackground: true,
-      margin: { top: "30px", bottom: "30px", left: "30px", right: "30px" }
+      format: 'A4',
+      printBackground: true
     });
 
     await browser.close();
 
-    res.set({
-      "Content-Type": "application/pdf",
-      "Content-Disposition": "attachment; filename=output.pdf"
-    });
-
+    res.setHeader('Content-Type', 'application/pdf');
     res.send(pdfBuffer);
-  } catch (err) {
-    console.error("❌ Puppeteer error:", err);
-    res.status(500).send("Puppeteer rendering failed.");
+  } catch (error) {
+    console.error('❌ PDF rendering failed:', error);
+    res.status(500).send('Rendering failed.');
   }
 });
 
-app.get("/", (req, res) => res.send("Puppeteer PDF server is up!"));
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+app.listen(port, () => {
+  console.log(`🚀 Server is listening on port ${port}`);
+});
