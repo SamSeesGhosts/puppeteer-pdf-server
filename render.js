@@ -1,12 +1,14 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const chromium = require('chrome-aws-lambda');
+const puppeteer = require('puppeteer'); // ✅ Use full puppeteer instead of puppeteer-core
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(bodyParser.text({ limit: '10mb' }));
 
+// Health check route
 app.get('/', async (req, res) => {
   let executablePath = await chromium.executablePath;
 
@@ -18,6 +20,7 @@ app.get('/', async (req, res) => {
   res.send(`✅ Puppeteer Render Server is running<br>🧠 Chrome path: ${executablePath}`);
 });
 
+// Render PDF route
 app.post('/render', async (req, res) => {
   try {
     const html = req.body;
@@ -32,7 +35,7 @@ app.post('/render', async (req, res) => {
 
     console.log("🧠 Using Chromium at:", executablePath);
 
-    const browser = await chromium.puppeteer.launch({
+    const browser = await puppeteer.launch({
       args: chromium.args,
       defaultViewport: chromium.defaultViewport,
       executablePath,
