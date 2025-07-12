@@ -2,10 +2,10 @@
   "name": "puppeteer-render-server",
   "version": "1.0.0",
   "main": "render.js",
-  "scripts": {
-    "start": "node render.js",
-    "postinstall": "puppeteer install"
-  },
+"scripts": {
+  "start": "node render.js",
+  "postinstall": "npx puppeteer browsers install chrome"
+}
   "dependencies": {
     "express": "^4.18.2",
     "body-parser": "^1.20.2",
