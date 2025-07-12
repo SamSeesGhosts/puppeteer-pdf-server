@@ -17,19 +17,24 @@ app.get('/', (req, res) => {
 });
 
 app.post('/render', async (req, res) => {
+  let html = req.body;
+
   try {
-    const html = req.body;
+    html = html.toString(); // Convert Buffer or object to string
+  } catch (e) {
+    console.error("❌ Could not convert body to string:", html);
+    return res.status(400).send('Invalid HTML input.');
+  }
 
-    if (typeof html !== 'string') {
-      console.error('❌ Received invalid HTML payload:', html);
-      return res.status(400).send('Invalid HTML input. Must be text/html.');
-    }
-
+  try {
     console.log("📥 Received HTML:", html.slice(0, 150));
 
     const browser = await puppeteer.launch({
       headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox'
+      ]
     });
 
     const page = await browser.newPage();
