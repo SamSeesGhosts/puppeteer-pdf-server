@@ -15,7 +15,7 @@ app.post('/render', async (req, res) => {
   let html = req.body;
 
   try {
-    html = html.toString(); // Convert buffer or object to string
+    html = html.toString(); // Ensure it's a string
   } catch (e) {
     console.error("❌ Could not convert body to string:", html);
     return res.status(400).send('Invalid HTML input.');
@@ -31,4 +31,7 @@ app.post('/render', async (req, res) => {
     });
 
     const page = await browser.newPage();
-    awa
+    await page.setContent(html, { waitUntil: 'networkidle0' });
+
+    const pdfBuffer = await page.pdf({
+      format
