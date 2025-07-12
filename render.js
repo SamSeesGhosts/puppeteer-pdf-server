@@ -1,7 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const puppeteer = require('puppeteer-core');
-const { executablePath } = require('puppeteer'); // <- pulls correct path from installed chrome
+const puppeteer = require('puppeteer');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -18,7 +17,7 @@ app.post('/render', async (req, res) => {
   try {
     html = html.toString();
   } catch (e) {
-    console.error("❌ Could not convert body to string:", html);
+    console.error("❌ Invalid HTML input:", html);
     return res.status(400).send('Invalid HTML input.');
   }
 
@@ -27,7 +26,7 @@ app.post('/render', async (req, res) => {
 
     const browser = await puppeteer.launch({
       headless: true,
-      executablePath: executablePath(), // use the correct path dynamically
+      executablePath: puppeteer.executablePath(),
       args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
 
