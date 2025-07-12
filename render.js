@@ -15,7 +15,7 @@ app.post('/render', async (req, res) => {
   let html = req.body;
 
   try {
-    html = html.toString();
+    html = html.toString(); // Handles Buffer/Object inputs
   } catch (e) {
     console.error("❌ Invalid HTML input:", html);
     return res.status(400).send('Invalid HTML input.');
@@ -26,7 +26,7 @@ app.post('/render', async (req, res) => {
 
     const browser = await puppeteer.launch({
       headless: true,
-      executablePath: puppeteer.executablePath(),
+      executablePath: puppeteer.executablePath(), // Let puppeteer figure out the path
       args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
 
