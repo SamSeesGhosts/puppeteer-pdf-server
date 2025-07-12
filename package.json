@@ -4,7 +4,7 @@
   "main": "render.js",
   "scripts": {
   "start": "node render.js",
-  "postinstall": "npx puppeteer browsers install chrome"
+  "postinstall": "npx puppeteer browsers install chrome && find /opt -name chrome"
 },
   "dependencies": {
     "body-parser": "^1.20.2",
