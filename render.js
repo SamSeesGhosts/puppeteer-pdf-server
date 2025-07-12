@@ -20,7 +20,7 @@ app.post('/render', async (req, res) => {
   let html = req.body;
 
   try {
-    html = html.toString(); // Convert Buffer or object to string
+    html = html.toString(); // Coerce Buffer or object to string
   } catch (e) {
     console.error("❌ Could not convert body to string:", html);
     return res.status(400).send('Invalid HTML input.');
@@ -31,6 +31,7 @@ app.post('/render', async (req, res) => {
 
     const browser = await puppeteer.launch({
       headless: true,
+      executablePath: '/opt/render/.cache/puppeteer/chrome/linux-121.0.6167.85/chrome-linux64/chrome',
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox'
