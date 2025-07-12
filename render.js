@@ -15,9 +15,9 @@ app.post('/render', async (req, res) => {
   let html = req.body;
 
   try {
-    html = html.toString(); // Handles Buffer/Object inputs
+    html = html.toString(); // Safely convert Buffer or object to string
   } catch (e) {
-    console.error("❌ Invalid HTML input:", html);
+    console.error("❌ Could not convert body to string:", html);
     return res.status(400).send('Invalid HTML input.');
   }
 
@@ -26,7 +26,7 @@ app.post('/render', async (req, res) => {
 
     const browser = await puppeteer.launch({
       headless: true,
-      executablePath: puppeteer.executablePath(), // Let puppeteer figure out the path
+      executablePath: puppeteer.executablePath(), // Use auto-resolved Chromium path
       args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
 
