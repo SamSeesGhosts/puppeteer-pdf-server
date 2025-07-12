@@ -19,6 +19,12 @@ app.get('/', (req, res) => {
 app.post('/render', async (req, res) => {
   try {
     const html = req.body;
+
+    if (typeof html !== 'string') {
+      console.error('❌ Received invalid HTML payload:', html);
+      return res.status(400).send('Invalid HTML input. Must be text/html.');
+    }
+
     console.log("📥 Received HTML:", html.slice(0, 150));
 
     const browser = await puppeteer.launch({
