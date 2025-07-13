@@ -1,7 +1,10 @@
 # Use official Node.js image
-FROM node:20-slim
+FROM node:22-slim
 
-# Add dependencies for Chromium
+# Set working directory
+WORKDIR /app
+
+# Install dependencies required for Chromium
 RUN apt-get update && apt-get install -y \
     wget \
     ca-certificates \
@@ -12,7 +15,7 @@ RUN apt-get update && apt-get install -y \
     libatk1.0-0 \
     libcups2 \
     libdbus-1-3 \
-    libgbm1 \
+    libgdk-pixbuf2.0-0 \
     libnspr4 \
     libnss3 \
     libx11-xcb1 \
@@ -20,20 +23,20 @@ RUN apt-get update && apt-get install -y \
     libxdamage1 \
     libxrandr2 \
     xdg-utils \
-    && rm -rf /var/lib/apt/lists/*
+    libu2f-udev \
+    libvulkan1 \
+    --no-install-recommends && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Set working directory
-WORKDIR /app
-
-# Copy files
-COPY package*.json ./
-COPY render.js .
-
-# Install dependencies (includes Puppeteer which downloads Chromium)
+# Copy package files and install dependencies
+COPY package.json package-lock.json* ./
 RUN npm install
+
+# Copy application source
+COPY . .
 
 # Expose port
 EXPOSE 3000
 
-# Start server
-CMD ["node", "render.js"]
+# Run server
+CMD ["npm", "start"]
