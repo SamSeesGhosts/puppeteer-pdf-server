@@ -5,28 +5,31 @@ const puppeteer = require('puppeteer');
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.use(bodyParser.text({ limit: '10mb', type: '*/*' }));
+app.use(bodyParser.text({ limit: '10mb' }));
 
 app.get('/', (req, res) => {
-  res.send('✅ Puppeteer Render Server is running');
+  res.send('✅ Puppeteer PDF server is running.');
 });
 
 app.post('/render', async (req, res) => {
   let html = req.body;
 
   try {
-    html = html.toString(); // Ensure it's a string
-  } catch (e) {
-    console.error("❌ Could not convert body to string:", html);
-    return res.status(400).send('Invalid HTML input.');
+    html = html.toString();
+  } catch (err) {
+    console.error("❌ Failed to parse HTML:", err);
+    return res.status(400).send("Invalid HTML body.");
   }
 
   try {
-    console.log("📥 Received HTML:", html.slice(0, 150));
+    console.log("📥 Received HTML:", html.slice(0, 100));
 
     const browser = await puppeteer.launch({
-      headless: 'new',
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      headless: "new",
+      args: [
+        "--no-sandbox",
+        "--disable-setuid-sandbox"
+      ]
     });
 
     const page = await browser.newPage();
@@ -42,8 +45,8 @@ app.post('/render', async (req, res) => {
     res.setHeader('Content-Type', 'application/pdf');
     res.send(pdfBuffer);
   } catch (error) {
-    console.error('❌ PDF rendering failed:', error);
-    res.status(500).send('Rendering failed.\n' + error.toString());
+    console.error("❌ PDF rendering failed:", error);
+    res.status(500).send("Rendering failed:\n" + error.toString());
   }
 });
 
